@@ -330,7 +330,9 @@ class Badgeos_Badge_Expiry_Settings {
     $achievement = array_pop( $achievements );
     //$achievement = badgeos_user_get_active_achievement( $user_ID, $achievement_id );
 
-    return '<div class="badgeos_expiry_date">Expiry Date: '.$this->calculate_expiry_date($achievement, $validity_settings).'</div>'.$output;
+    $currentachievement = $this->calculate_expiry_date($achievement, $validity_settings);
+
+    return '<div class="badgeos_expiry_date">Expiry Date: '.$currentachievement.'</div>'.$output;
   }
   
   public function show_expiry_date($user_content, $user_id) {
