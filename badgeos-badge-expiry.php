@@ -1,14 +1,14 @@
 <?php
 /**
  * @package badgeos-badge-expiry
- * @version 1.0
+ * @version 2.0
  */
 /*
 Plugin Name: Mikes BadgeOS badge expiry
 Plugin URI: http://wordpress.org/plugins/badgeos-badge-expiry/
 Description: Code to expire badgeos badge after set validity period.
 Author: Mike
-Version: 1.0
+Version: 2.0
 Author URI: http://michaelwing.co.uk/
 */
 

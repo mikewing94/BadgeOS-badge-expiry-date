@@ -438,11 +438,24 @@ class Badgeos_Badge_Expiry_Settings {
     //$achievement = badgeos_user_get_active_achievement( $user_ID, $achievement_id );
 
     $currentachievement = $this->calculate_expiry_date($achievement, $validity_settings);
-    $weeksremaining = 5;
     $current_date = date("Y-m-d");
     $weeks_remaining = datediff('ww', $current_date, $currentachievement, false); 
 
-    return '<div class="badgeos_expiry_date">Expiry Date: '.$currentachievement.'</div>'.'<span class="trafficlight">Training Expires in: '.$weeks_remaining.' weeks</span>'.$output;
+  //RETURN EXPIRY DATE AND TRAFFIC LIGHT SYSTEM
+
+  //MORE THAN 6 WEEKS REMAINING (GREEN)
+  if ($weeks_remaining > 6) {
+    return '<div class="badgeos_expiry_date">Expiry Date: '.$currentachievement.'</div>'.'<span class="trafficlight" style="color: green;">◉ Training Expires in: '.$weeks_remaining.' weeks</span>'.$output;
+  }
+
+  //BETWEEN 6 AND 3 WEEKS REMAINING (AMBER)
+  elseif ($weeks_remaining > 3 && $weeks_remaining <= 6) {
+    return '<div class="badgeos_expiry_date">Expiry Date: '.$currentachievement.'</div>'.'<span class="trafficlight" style="color: DarkOrange;">◉ Training Expires in: '.$weeks_remaining.' weeks</span>'.$output;
+  }
+
+  elseif ($weeks_remaining <= 3){
+    return '<div class="badgeos_expiry_date">Expiry Date: '.$currentachievement.'</div>'.'<span class="trafficlight" style="color: red;">◉ Training Expires in: '.$weeks_remaining.' weeks</span>'.$output;
+  }
   }
   
   public function show_expiry_date($user_content, $user_id) {
