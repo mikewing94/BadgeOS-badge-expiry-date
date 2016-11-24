@@ -331,8 +331,9 @@ class Badgeos_Badge_Expiry_Settings {
     //$achievement = badgeos_user_get_active_achievement( $user_ID, $achievement_id );
 
     $currentachievement = $this->calculate_expiry_date($achievement, $validity_settings);
+    $weeksremaining = 5;
 
-    return '<div class="badgeos_expiry_date">Expiry Date: '.$currentachievement.'</div>'.$output;
+    return '<div class="badgeos_expiry_date">Expiry Date: '.$currentachievement.'</div>'.'<span class="trafficlight">Training Expires in: '.$weeksremaining.' weeks</span>'.$output;
   }
   
   public function show_expiry_date($user_content, $user_id) {
