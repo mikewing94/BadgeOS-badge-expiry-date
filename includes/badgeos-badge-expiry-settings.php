@@ -312,11 +312,7 @@ class Badgeos_Badge_Expiry_Settings {
       }
     }
   }
-<<<<<<< HEAD
 
-=======
-  
->>>>>>> origin/master
   public function render_achievement($output, $achievement_id) {
     global $user_ID;
     static $badges_expires;
