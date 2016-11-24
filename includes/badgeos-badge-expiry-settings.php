@@ -378,7 +378,8 @@ class Badgeos_Badge_Expiry_Settings {
     $expiry_date  = clone $achievement_date;
     $expiry_date->add(new DateInterval("P{$validity_1}D"));
     
-    return $expiry_date->format('d-m-Y H:i:s');
+    //return $expiry_date->format('d-m-Y H:i:s');
+    return $expiry_date->format('Y-m-d');
   }
 
   protected function get_validity_defaults() {
