@@ -342,10 +342,32 @@ class Badgeos_Badge_Expiry_Settings {
     $weeks_remaining = datediff('ww', $current_date, $currentachievement, false);
 
   //RETURN EXPIRY DATE AND TRAFFIC LIGHT SYSTEM
-
+  $user = get_userdata($uid);
+  //$user = wp_get_current_user();
+  $userrole = $user->roles[0];
   //MORE THAN 6 WEEKS REMAINING (GREEN)
+  if ($userrole === 'short_term_contractor'){
+    $date = date_create($currentachievement);
+    date_sub($date, date_interval_create_from_date_string('2 years'));
+    $twoyrs = 104;
+    $new_weeks_remaining = $weeks_remaining - $twoyrs;
+
   if ($weeks_remaining > 6) {
-    return '<div class="badgeos_expiry_date">Expiry Date: '.$currentachievement.'</div>'.'<span class="trafficlight" style="color: green;">◉ Training Expires in: '.$weeks_remaining.' weeks '.$pid.'</span>'.$output;
+    return '<div class="badgeos_expiry_date">Expiry Date: '.date_format($date, 'Y-m-d').'</div>'.'<span class="trafficlight" style="color: green;">◉ Training Expires in: '.$new_weeks_remaining.' weeks '.'</span>'.$output;
+  }
+
+  //BETWEEN 6 AND 3 WEEKS REMAINING (AMBER)
+  elseif ($weeks_remaining > 3 && $weeks_remaining <= 6) {
+    return '<div class="badgeos_expiry_date">Expiry Date: '.date_format($date, 'Y-m-d').'</div>'.'<span class="trafficlight" style="color: DarkOrange;">◉ Training Expires in: '.$new_weeks_remaining.' weeks</span>'.$output;
+  }
+
+  elseif ($weeks_remaining <= 3){
+    return '<div class="badgeos_expiry_date">Expiry Date: '.date_format($date, 'Y-m-d').'</div>'.'<span class="trafficlight" style="color: red;">◉ Training Expires in: '.$new_weeks_remaining.' weeks</span>'.$output;
+  }
+}
+else {
+  if ($weeks_remaining > 6) {
+    return '<div class="badgeos_expiry_date">Expiry Date: '.$currentachievement.'</div>'.'<span class="trafficlight" style="color: green;">◉ Training Expires in: '.$weeks_remaining.' weeks '.$userrole.'</span>'.$output;
   }
 
   //BETWEEN 6 AND 3 WEEKS REMAINING (AMBER)
@@ -356,6 +378,7 @@ class Badgeos_Badge_Expiry_Settings {
   elseif ($weeks_remaining <= 3){
     return '<div class="badgeos_expiry_date">Expiry Date: '.$currentachievement.'</div>'.'<span class="trafficlight" style="color: red;">◉ Training Expires in: '.$weeks_remaining.' weeks</span>'.$output;
   }
+}
   }
 
   public function show_expiry_date($user_content, $user_id) {
@@ -403,6 +426,7 @@ class Badgeos_Badge_Expiry_Settings {
 
     //return $expiry_date->format('d-m-Y H:i:s');
     //return $expiry_date->format('Y-m-d'); COMMENTED output
+
     return $expiry_date->format('Y-m-d');
     $user = get_userdata($user_ID);
     //$user = wp_get_current_user();
