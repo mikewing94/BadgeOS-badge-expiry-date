@@ -1,30 +1,29 @@
 <?php
+//NEW CODE CHANGE ME!!
 class Badgeos_Badge_Expiry_Settings {
-  
+
   const DEFAULT_NOTIFY_EMAIL_DAYS  = 7;
   const FIELD_PREFIX  = '_badgeos_badge_expiry_';
   static $fields  = array (
-    'validity_1', 'validity_2', 'last_ladder_change_period', 'notify_email_days', 
+    'validity_1', 'validity_2', 'last_ladder_change_period', 'notify_email_days',
   );
-  
+
   protected $settings_page_name;
-  
+
   public function __construct() {
     //add_filter( 'badgeos_get_achievement_earners_list_user', array($this, 'show_expiry_date'), 10, 2 );
     add_filter( 'badgeos_render_achievement', array($this, 'render_achievement'), 10, 2 );
-
-
     add_action('wp_ajax_update_badges_validity', array($this, 'update_badges_validity'));
-    
+
     add_action( 'admin_menu', array($this, 'add_menu'));
     //add_action( 'wp_enqueue_scripts', array($this, 'add_script'));
     add_action( 'admin_enqueue_scripts', array($this, 'add_script'));
-    
+
     //Cron
     add_action( 'badgeos_badge_expiry_event_hook', array($this, 'badge_epiry_cron_job') );
     //require_once '/www/dBug.php';
   }
-  
+
 /**
  * badgeos-badge-expiry main settings page output
  * @since  1.0
@@ -37,7 +36,7 @@ class Badgeos_Badge_Expiry_Settings {
     $ajax_nonce = wp_create_nonce( __CLASS__ );
     $badges = $this->get_badges();
     $badges_expires = $this->get_badges_expiry_details();
-    
+
     //global $wpdb, $userdata;
     //var_dump($userdata);
     //new dBug(badgeos_get_achievement_earners(7), '', 1);
@@ -51,7 +50,7 @@ class Badgeos_Badge_Expiry_Settings {
     //new dBug(badgeos_get_achievement_metas('_badgeos_achievements', 'badges'), '', 1);
     //new dBug(badgeos_get_unserialized_achievement_metas('_badgeos_achievements', 'badges'), '', 1);
     //new dBug(badgeos_get_user_earned_achievement_ids(1, array('badges')), '', 1);
-    
+
     //new dBug($badges_expires, '', 1);
     //$this->badge_epiry_cron_job();
 ?>
@@ -72,7 +71,7 @@ class Badgeos_Badge_Expiry_Settings {
         <td style="width:15%;">Send email reminder<br />x days before expiry</td>
         <td></td>
       </tr>
-    <?php 
+    <?php
         $validity_1_field = self::prefix_field('validity_1');
         $validity_2_field = self::prefix_field('validity_2');
         $last_ladder_change_period_field = self::prefix_field('last_ladder_change_period');
@@ -99,7 +98,7 @@ class Badgeos_Badge_Expiry_Settings {
   <div id="badgeos_badge_expiry_settings_loading" style="display: none;"><img src="<?php echo BADGEOS_BADGE_EXPIRY_URL . 'images/spinner.gif' ?>" alt="" /><!--<img src="<?php echo includes_url(); ?>js/thickbox/loadingAnimation.gif" alt="" />--></div>
 <?php
   }
-  
+
   public function update_badges_validity() {
     //sleep(5);
     global $wpdb, $userdata;
@@ -116,7 +115,7 @@ class Badgeos_Badge_Expiry_Settings {
       }
     }
   }
-  
+
   public function get_badges() {
     global $wpdb;
     $data = array();
@@ -124,10 +123,10 @@ class Badgeos_Badge_Expiry_Settings {
     foreach ($values as $obj) {
       $data[$obj->ID] = $obj;
     }
-    
+
     return $data;
   }
-  
+
   public function get_badges_expiry_details() {
     global $wpdb;
     $data = array();
@@ -141,10 +140,10 @@ class Badgeos_Badge_Expiry_Settings {
       }
       $data[$obj->post_id]->{$obj->meta_key} = $obj->meta_value;
     }
-    
+
     return $data;
   }
-  
+
   public function get_badgeos_achievements() {
     global $wpdb;
     $data = array();
@@ -154,14 +153,14 @@ class Badgeos_Badge_Expiry_Settings {
     //return badgeos_get_achievement_metas('_badgeos_achievements', 'badges');
     return badgeos_get_unserialized_achievement_metas('_badgeos_achievements', 'badges');
   }
-  
+
   public function add_menu() {
     $minimum_role = function_exists('badgeos_get_manager_capability') ? badgeos_get_manager_capability() : '';
-    
+
     $this->settings_page_name = add_menu_page( 'BadgeOS Badge Expiry', 'BadgeOS Badge Expiry', $minimum_role, 'badgeos_badge_expiry_settings', array($this, 'display') );
-    
+
   }
-  
+
   public function add_script($hook) {
     if ( $this->settings_page_name != $hook ) {
       return;
@@ -170,7 +169,7 @@ class Badgeos_Badge_Expiry_Settings {
     wp_enqueue_script(array('jquery-ui-core', 'jquery-ui-dialog'));
     wp_enqueue_style( 'badgeos-badge-expiry', BADGEOS_BADGE_EXPIRY_URL . 'css/jquery-ui.min.css' );
   }
-  
+
   protected function check_validity_1($user, $badge_obj, $validity_settings) {
     //var_dump(__METHOD__);
     static $tz;
@@ -184,7 +183,7 @@ class Badgeos_Badge_Expiry_Settings {
     $achievement_date = clone $today;
     $achievement_date = $achievement_date->setTimestamp($badge_obj->date_earned);
     //new dBug($achievement_date->format('Y-m-d H:i:s'));
-    
+
     $validity_1_field = self::prefix_field('validity_1');
     $validity_1 = (int) $validity_settings->{$validity_1_field};
     $expiry_date  = clone $achievement_date;
@@ -193,15 +192,15 @@ class Badgeos_Badge_Expiry_Settings {
     //new dBug($expiry_date->format('Y-m-d H:i:s'));
     if ($today < $expiry_date) {
       $date_args  = array (
-        'today' => $today, 
-        'expiry_date' => $expiry_date, 
+        'today' => $today,
+        'expiry_date' => $expiry_date,
       );
       $this->send_email_notification($user, $badge_obj, $validity_settings, $date_args);
       return true;
     }
     return false;
   }
-  
+
   protected function check_validity_2($user, $badge_obj, $validity_settings) {
     //var_dump(__METHOD__);
     static $tz;
@@ -215,7 +214,7 @@ class Badgeos_Badge_Expiry_Settings {
     $achievement_date = clone $today;
     $achievement_date = $achievement_date->setTimestamp($badge_obj->date_earned);
     //new dBug($achievement_date->format('Y-m-d H:i:s'));
-    
+
     $validity_2_field = self::prefix_field('validity_2');
     $validity_2 = (int) $validity_settings->{$validity_2_field};
     $expiry_date  = clone $achievement_date;
@@ -228,22 +227,22 @@ class Badgeos_Badge_Expiry_Settings {
     if ( ! $this->is_last_ladder_changed($badge_obj, $validity_settings)) {
       return false;
     }
-    
+
     $date_args  = array (
-      'today' => $today, 
-      'expiry_date' => $expiry_date, 
+      'today' => $today,
+      'expiry_date' => $expiry_date,
     );
     $this->send_email_notification($user, $badge_obj, $validity_settings, $date_args);
-    
+
     return true;
   }
-  
+
   protected function is_last_ladder_changed($badge_obj, $validity_settings) {
     // Code for ladder change check goes here
-    
+
     return true;
   }
-  
+
   protected function check_validity($user, $badge_obj, $validity_settings) {
     if ( ! $this->check_validity_1($user, $badge_obj, $validity_settings)) {
       if ( ! $this->check_validity_2($user, $badge_obj, $validity_settings)) {
@@ -252,7 +251,7 @@ class Badgeos_Badge_Expiry_Settings {
     }
     return true;
   }
-  
+
   protected function send_email_notification($user, $badge_obj, $validity_settings, $date_args) {
     //echo __METHOD__;
     //new dBug($validity_settings, '', 1);
@@ -261,22 +260,31 @@ class Badgeos_Badge_Expiry_Settings {
     $notify_email_days  = (property_exists($validity_settings, $notify_email_date_field) && ! empty($validity_settings->{$notify_email_date_field})) ? $validity_settings->{$notify_email_date_field} : self::DEFAULT_NOTIFY_EMAIL_DAYS;
     $notify_email_date->sub(new DateInterval("P{$notify_email_days}D"));
     //new dBug($notify_email_date->format('Y-m-d H:i:s'));
-    
+
     $date_diff  = $notify_email_date->diff($date_args['today']);
     //new dBug($date_diff->format('%a'));
     if ($date_diff && $date_diff->format('%a') == 0) {
       $subject  = $user->user_email.' Badge Expiry';
       $message  = 'Your badge will expire on '.$date_args['expiry_date']->format('d-m-Y H:i:s');
+      $key = 'unsubscribe';
+      $single = true;
+      $user_unsubscribe = get_user_meta( $user_id, $key, $single );
+      
+      if ($user_unsubscribe == "yes"){
+        //don't send an email
+      }
+      else { //if user not unsubscribed then send email
       $this->send_email($user->user_email, $subject, $message);
+      }
     }
   }
-  
+
   protected function send_email($to, $subject, $message) {
     //echo __METHOD__.'<br />';
     //echo $to.'<br />';
     wp_mail($to, $subject, $message);
   }
-  
+
   public function badge_epiry_cron_job() {
     //var_dump(__METHOD__);
     $badges = $this->get_badges();
@@ -319,9 +327,10 @@ class Badgeos_Badge_Expiry_Settings {
     if ($badges_expires === null) {
       $badges_expires = $this->get_badges_expiry_details();
     }
-    
+
     $uid  = isset($_REQUEST['user_id']) ? $_REQUEST['user_id'] : $user_ID;
-    
+    $pid = $_GET['uid'];
+
     $validity_settings  = isset($badges_expires[$achievement_id]) ? $badges_expires[$achievement_id] : $this->get_validity_defaults();
     $achievements = badgeos_get_user_achievements( array( 'user_id' => $uid, 'achievement_id' => $achievement_id ) );
     if (count($achievements) == 0) return '';
@@ -330,13 +339,13 @@ class Badgeos_Badge_Expiry_Settings {
 
     $currentachievement = $this->calculate_expiry_date($achievement, $validity_settings);
     $current_date = date("Y-m-d");
-    $weeks_remaining = datediff('ww', $current_date, $currentachievement, false); 
+    $weeks_remaining = datediff('ww', $current_date, $currentachievement, false);
 
   //RETURN EXPIRY DATE AND TRAFFIC LIGHT SYSTEM
 
   //MORE THAN 6 WEEKS REMAINING (GREEN)
   if ($weeks_remaining > 6) {
-    return '<div class="badgeos_expiry_date">Expiry Date: '.$currentachievement.'</div>'.'<span class="trafficlight" style="color: green;">◉ Training Expires in: '.$weeks_remaining.' weeks</span>'.$output;
+    return '<div class="badgeos_expiry_date">Expiry Date: '.$currentachievement.'</div>'.'<span class="trafficlight" style="color: green;">◉ Training Expires in: '.$weeks_remaining.' weeks '.$pid.'</span>'.$output;
   }
 
   //BETWEEN 6 AND 3 WEEKS REMAINING (AMBER)
@@ -348,20 +357,20 @@ class Badgeos_Badge_Expiry_Settings {
     return '<div class="badgeos_expiry_date">Expiry Date: '.$currentachievement.'</div>'.'<span class="trafficlight" style="color: red;">◉ Training Expires in: '.$weeks_remaining.' weeks</span>'.$output;
   }
   }
-  
+
   public function show_expiry_date($user_content, $user_id) {
     static $validity_settings;
-    
+
     $badge_id = get_the_ID();
     if ($validity_settings === null) {
       $badges_expires = $this->get_badges_expiry_details();
       $validity_settings  = isset($badges_expires[$badge_id]) ? $badges_expires[$badge_id] : $this->get_validity_defaults();
     }
-    
+
     $user_has_badge = badgeos_get_user_achievements(array('user_id' => $user_id, 'achievement_id' => $badge_id,));
     //var_dump($user_has_badge);
     //die;
-    
+
     $dom = new DOMDocument();
     $dom->loadXML($user_content);
     $lis = $dom->getElementsByTagName('li');
@@ -372,12 +381,12 @@ class Badgeos_Badge_Expiry_Settings {
     }
     return $dom->saveXML();
   }
-  
+
   public function calculate_expiry_date($badge_obj, $validity_settings) {
     //var_dump(__METHOD__);
     static $tz;
     static $today;
-    
+    global $user_ID;
     if (empty($tz)) {
       $tz = new DateTimeZone('GMT');
     }
@@ -386,14 +395,68 @@ class Badgeos_Badge_Expiry_Settings {
     }
     $achievement_date = clone $today;
     $achievement_date = $achievement_date->setTimestamp($badge_obj->date_earned);
-    
+
     $validity_1_field = self::prefix_field('validity_1');
     $validity_1 = (int) $validity_settings->{$validity_1_field};
     $expiry_date  = clone $achievement_date;
     $expiry_date->add(new DateInterval("P{$validity_1}D"));
-    
+
     //return $expiry_date->format('d-m-Y H:i:s');
+    //return $expiry_date->format('Y-m-d'); COMMENTED output
     return $expiry_date->format('Y-m-d');
+    $user = get_userdata($user_ID);
+    //$user = wp_get_current_user();
+    $userrole = $user->roles[0];
+    echo "The user role is:";
+    echo $userrole;
+
+    if ($userrole === 'administrator') {
+     $expiry_date = date_add($expiry_date,date_interval_create_from_date_string("4 years"));
+     return $expiry_date->format('Y-m-d');
+    }
+    else if ($userrole === 'core_contractor_plant_based') {
+      $expiry_date = date_add($expiry_date,date_interval_create_from_date_string("4 years"));
+      return $expiry_date->format('Y-m-d');
+    }
+
+    else if ($userrole === 'core_contractor_office_based') {
+     $expiry_date = date_add($expiry_date,date_interval_create_from_date_string("4 years"));
+     return $expiry_date->format('Y-m-d');
+    }
+
+    else if ($userrole === 'short_term_contractor') {
+     $expiry_date = date_add($expiry_date,date_interval_create_from_date_string("1 years"));
+     return $expiry_date->format('Y-m-d');
+    }
+    
+    else {
+     return $expiry_date->format('Y-m-d');
+    }
+    //Get a users info and their role
+    /**
+    function expiry_date_user_role() {
+       if ($userrole === 'administrator') {
+        $expiry_date = date_add($expiry_date,date_interval_create_from_date_string("4 years"));
+        return $expiry_date->format('Y-m-d');
+       }
+       else if ($userrole === 'core_contractor_plant_based') {
+         $expiry_date = date_add($expiry_date,date_interval_create_from_date_string("4 years"));
+    		 return $expiry_date->format('Y-m-d');
+       }
+
+       else if ($userrole === 'core_contractor_office_based') {
+        $expiry_date = date_add($expiry_date,date_interval_create_from_date_string("4 years"));
+        return $expiry_date->format('Y-m-d');
+       }
+
+       else {
+    		
+    	 }
+       return;
+    }
+
+    expiry_date_user_role();
+    */
   }
 
   protected function get_validity_defaults() {
@@ -405,15 +468,15 @@ class Badgeos_Badge_Expiry_Settings {
     return $obj;
   }
 
-  
+
   private static function prefix_field($field) {
     return self::FIELD_PREFIX.$field;
   }
-  
+
   public static function activate() {
     wp_schedule_event( time(), 'daily', 'badgeos_badge_expiry_event_hook' );
   }
-  
+
   public static function deactivate() {
     wp_clear_scheduled_hook( 'badgeos_badge_expiry_event_hook' );
     global $wpdb;
@@ -421,5 +484,5 @@ class Badgeos_Badge_Expiry_Settings {
       $wpdb->delete( $wpdb->postmeta, array('meta_key' => self::prefix_field($field_name), ));
     }
   }
-  
+
 }
